@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 #include "ngm/ngm.hpp"
 
-TEST(SumTest, PositiveNumbers) {
+TEST(NgramModelTests, PositiveNumbers) {
     ngram::NgramModel M(3, 1.0, 1.0, true);
     M.update(std::string("<<a>"));
     M.update(std::string("<<b>"));

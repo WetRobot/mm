@@ -1,6 +1,7 @@
 # What's this for?
 
-You can fit and evaluate a character ngram model.
+You can fit and evaluate a character ngram model. Evaluation of
+log probability mass function has been parallelised with OpenMP.
 
 ```c++
 #include <iostream>
@@ -19,6 +20,7 @@ int main() {
     for (int i = 0; i < x.size(); i++) {
         x[i] = "<<aaaaaaaa>";
     }
+    // use two threads
     M.lpmf(x, lp, 2);
     ngram::print::print(lp);
     return(0);

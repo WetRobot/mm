@@ -1,28 +1,20 @@
 # What's this for?
 
-You can fit and evaluate a character ngram model. Evaluation of
+You can fit and evaluate a Markov model. Evaluation of
 log probability mass function has been parallelised with OpenMP.
 
 ```c++
-#include <iostream>
 #include <string>
-#include <tuple>
-#include <vector>
-#include "./include/ngm/ngm.hpp"
+#include "./include/mm/mm.hpp"
+
 int main() {
-    ngram::NgramModel M(3, 1.0, 1.0, true);
-    // fit model
-    M.update(std::string("<<a>"));
-    M.update(std::string("<<b>"));
-    // evaluate on holdout data
-    std::vector<double> lp(10);
-    std::vector<std::string> x(10);
-    for (int i = 0; i < x.size(); i++) {
-        x[i] = "<<aaaaaaaa>";
-    }
-    // use two threads
-    M.lpmf(x, lp, 2);
-    ngram::print::print(lp);
+    mm::MarkovModel<std::string> M(1.0, 1.0, true);
+    M.update("a", "b");
+    M.update("a", "a");
+    M.update("a", "a");
+    M.print();
+    mm::print::print(M.lpmf("a", "x"));
+    mm::print::print(M.lpmf("a", "a"));
     return(0);
 }
 ```
@@ -33,8 +25,8 @@ This project is header-only and you can simply include it as a subdir of your
 own project.
 
 ```c++
-// assuming you have the project dir of "ngm" as a subdir of your own project
-#include "./ngm/include/ngm/ngm.hpp"
+// assuming you have the project dir of "mm" as a subdir of your own project
+#include "./mm/include/mm/mm.hpp"
 ```
 
 # Running unit tests

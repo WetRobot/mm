@@ -1,17 +1,13 @@
 #include "gtest/gtest.h"
-#include "ngm/ngm.hpp"
+#include "mm/mm.hpp"
+#include <cmath>
 
-TEST(NgramModelTests, PositiveNumbers) {
-    ngram::NgramModel M(3, 1.0, 1.0, true);
-    M.update(std::string("<<a>"));
-    M.update(std::string("<<b>"));
-    std::vector<double> lp(10);
-    std::vector<std::string> x(10);
-    for (int i = 0; i < x.size(); i++) {
-        x[i] = "<<aaaaaaaa>";
-    }
-    M.lpmf(x, lp, 2);
-    EXPECT_EQ(lp[0], lp[1]);
+TEST(MarkovModelTests, PositiveNumbers) {
+    mm::MarkovModel<std::string> M(1.0, 1.0, true);
+    M.update("<<", "a");
+    M.update("<<", "b");
+    EXPECT_EQ(M.lpmf("<<", "a"), M.lpmf("<<", "b"));
+    EXPECT_EQ(M.lpmf("<<", "a"), std::log(1) - std::log(3));
 }
 
 int main(int argc, char **argv) {

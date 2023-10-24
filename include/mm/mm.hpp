@@ -8,10 +8,12 @@
 #include <cmath>
 #include <vector>
 #include <omp.h>
+#include <iterator>
 
 namespace mm {
 
 #include "./print.hpp"
+#include "./iterable.hpp"
 
     template <typename mm_elem_type>
     class MarkovModel {
@@ -199,10 +201,52 @@ namespace mm {
         ) const {
             lpmf(std::get<0>(transition), std::get<1>(transition), out);
         }
-        void lpmf(
+        double lpmf(
             const mm_transition_type& transition
         ) const {
             return lpmf(std::get<0>(transition), std::get<1>(transition));
+        }
+
+        template <typename Iterator>
+        void lpmf(
+            it::ByIterable<Iterator> by_iterable,
+            std::vector<double>& out
+        ) {
+            std::size_t i = -1;
+            for (Iterator it = by_iterable.begin; it != by_iterable.end; ++it) {
+                i += 1;
+                out[i] = lpmf(*it);
+            }
+        }
+        template <typename Iterator>
+        std::vector<double> lpmf(
+            it::ByIterable<Iterator> by_iterable
+        ) {
+            std::vector<double> out(std::distance(
+                by_iterable.begin, by_iterable.end
+            ));
+            lpmf(by_iterable, out);
+            return out;
+        }
+
+        template <typename Iterator>
+        void lpmf(
+            it::SumIterable<Iterator> sum_iterable,
+            double& out
+        ) {
+            std::size_t i = -1;
+            for (Iterator it = sum_iterable.begin; it != sum_iterable.end; ++it) {
+                i += 1;
+                out += lpmf(*it);
+            }
+        }
+        template <typename Iterator>
+        double lpmf(
+            it::SumIterable<Iterator> sum_iterable
+        ) {
+            double out = 0.0;
+            lpmf(sum_iterable, out);
+            return out;
         }
 
     };

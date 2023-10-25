@@ -119,8 +119,6 @@ namespace mm {
         }
 
         void print() const {
-            std::cout << "n: ";
-            print::print(n);
             std::cout << "alpha: ";
             print::print(alpha);
             std::cout << "unseen_alpha: ";
@@ -206,46 +204,54 @@ namespace mm {
         ) const {
             return lpmf(std::get<0>(transition), std::get<1>(transition));
         }
-
         template <typename Iterator>
         void lpmf(
             it::ByIterable<Iterator> by_iterable,
-            std::vector<double>& out
+            std::vector<double>& out,
+            const int& n_threads = 1
         ) {
-            std::size_t i = -1;
-            for (Iterator it = by_iterable.begin; it != by_iterable.end; ++it) {
-                i += 1;
+            omp_set_num_threads(n_threads);
+            std::size_t d = std::distance(by_iterable.begin, by_iterable.end);
+            #pragma omp parallel for
+            for (std::size_t i = 0; i < d; ++i) {
+                Iterator it = by_iterable.begin;
+                std::advance(it, i);
                 out[i] = lpmf(*it);
             }
         }
         template <typename Iterator>
         std::vector<double> lpmf(
-            it::ByIterable<Iterator> by_iterable
+            it::ByIterable<Iterator> by_iterable,
+            const int& n_threads = 1
         ) {
-            std::vector<double> out(std::distance(
-                by_iterable.begin, by_iterable.end
-            ));
-            lpmf(by_iterable, out);
+            std::size_t d = std::distance(by_iterable.begin, by_iterable.end);
+            std::vector<double> out(d);
+            lpmf(by_iterable, out, n_threads);
             return out;
         }
 
         template <typename Iterator>
         void lpmf(
             it::SumIterable<Iterator> sum_iterable,
-            double& out
+            double& out,
+            const int& n_threads = 1
         ) {
-            std::size_t i = -1;
-            for (Iterator it = sum_iterable.begin; it != sum_iterable.end; ++it) {
-                i += 1;
+            omp_set_num_threads(n_threads);
+            std::size_t d = std::distance(sum_iterable.begin, sum_iterable.end);
+            #pragma omp parallel for
+            for (std::size_t i = 0; i < d; ++i) {
+                Iterator it = sum_iterable.begin;
+                std::advance(it, i);
                 out += lpmf(*it);
             }
         }
         template <typename Iterator>
         double lpmf(
-            it::SumIterable<Iterator> sum_iterable
+            it::SumIterable<Iterator> sum_iterable,
+            const int& n_threads = 1
         ) {
             double out = 0.0;
-            lpmf(sum_iterable, out);
+            lpmf(sum_iterable, out, n_threads);
             return out;
         }
 

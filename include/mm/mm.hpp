@@ -17,7 +17,7 @@ namespace mm {
 
     template <typename mm_elem_type>
     class MarkovModel {
-    private:
+    protected:
         typedef std::tuple<const mm_elem_type, const mm_elem_type> mm_transition_type;
         typedef std::unordered_map<mm_elem_type, int> rhs_map_type;
         typedef std::unordered_map<mm_elem_type, rhs_map_type> lhs_rhs_counts_type;
@@ -74,7 +74,6 @@ namespace mm {
             }
         }
 
-        int n;
         double alpha;
         double unseen_alpha;
         bool normalise_length;

@@ -139,6 +139,17 @@ namespace mm {
         ) {
             transition_count_increment(lhs, rhs);
         }
+        template <typename Iterator>
+        void update(
+            it::ByIterable<Iterator> by_iterable
+        ) {
+            std::size_t d = std::distance(by_iterable.begin, by_iterable.end);
+            for (std::size_t i = 0; i < d; ++i) {
+                Iterator it = by_iterable.begin;
+                std::advance(it, i);
+                update(*it);
+            }
+        }
         
         void transition_count_get(
             const mm_elem_type& lhs,
@@ -206,8 +217,20 @@ namespace mm {
         template <typename Iterator>
         void lpmf(
             it::ByIterable<Iterator> by_iterable,
+            std::vector<double>& out
+        ) {
+            std::size_t d = std::distance(by_iterable.begin, by_iterable.end);
+            for (std::size_t i = 0; i < d; ++i) {
+                Iterator it = by_iterable.begin;
+                std::advance(it, i);
+                out[i] = lpmf(*it);
+            }
+        }
+        template <typename Iterator>
+        void lpmf(
+            it::ByIterable<Iterator> by_iterable,
             std::vector<double>& out,
-            const int& n_threads = 1
+            const int& n_threads
         ) {
             omp_set_num_threads(n_threads);
             std::size_t d = std::distance(by_iterable.begin, by_iterable.end);
@@ -220,20 +243,28 @@ namespace mm {
         }
         template <typename Iterator>
         std::vector<double> lpmf(
-            it::ByIterable<Iterator> by_iterable,
-            const int& n_threads = 1
+            it::ByIterable<Iterator> by_iterable
         ) {
             std::size_t d = std::distance(by_iterable.begin, by_iterable.end);
             std::vector<double> out(d);
             lpmf(by_iterable, out, n_threads);
             return out;
         }
-
+        template <typename Iterator>
+        std::vector<double> lpmf(
+            it::ByIterable<Iterator> by_iterable,
+            const int& n_threads
+        ) {
+            std::size_t d = std::distance(by_iterable.begin, by_iterable.end);
+            std::vector<double> out(d);
+            lpmf(by_iterable, out, n_threads);
+            return out;
+        }
         template <typename Iterator>
         void lpmf(
             it::SumIterable<Iterator> sum_iterable,
             double& out,
-            const int& n_threads = 1
+            const int& n_threads
         ) {
             omp_set_num_threads(n_threads);
             std::size_t d = std::distance(sum_iterable.begin, sum_iterable.end);
@@ -247,7 +278,7 @@ namespace mm {
         template <typename Iterator>
         double lpmf(
             it::SumIterable<Iterator> sum_iterable,
-            const int& n_threads = 1
+            const int& n_threads
         ) {
             double out = 0.0;
             lpmf(sum_iterable, out, n_threads);
